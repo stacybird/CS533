@@ -35,6 +35,8 @@ thread_start:
 # void thread_switch(struct thread_t * old, struct thread_t * new);
 
 .globl thread_switch
+
+thread_switch:
   pushq %rbx           # callee-save
   pushq %rbp           # callee-save
   pushq %r12           # callee-save
