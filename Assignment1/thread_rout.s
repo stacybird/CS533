@@ -20,9 +20,9 @@ thread_start:
   pushq %r13           # callee-save
   pushq %r14           # callee-save
   pushq %r15           # callee-save
-  movq  %rsp, 8(%rdi)  # *old.sp = %rsp
-  movq 8(%rsi), %rsp   # %rsp = *new.sp
-  jmp *16(%rsi)        # jump *new.initial_function
+  movq  %rsp, (%rdi)  # *old.sp = %rsp
+  movq (%rsi), %rsp   # %rsp = *new.sp
+  jmp *8(%rsi)        # jump *new.initial_function
 
 # 3. Write an assembly routine to switch between two threads, with the prototype:
 # void thread_switch(struct thread_t * old, struct thread_t * new);
@@ -43,15 +43,16 @@ thread_switch:
   pushq %r13           # callee-save
   pushq %r14           # callee-save
   pushq %r15           # callee-save
-  movq  %rsp, 8(%rdi)  # *old.sp = %rsp
-  movq 8(%rsi), %rsp   # %rsp = *new.sp
+  movq  %rsp, (%rdi)  # *old.sp = %rsp
+  movq (%rsi), %rsp   # %rsp = *new.sp
   popq %r15            # callee-restore
   popq %r14            # callee-restore
   popq %r13            # callee-restore
   popq %r12            # callee-restore
   popq %rbp            # callee-restore
   popq %rbx            # callee-restore
-  ret                  # return
+  jmp *8(%rsi)        # jump *new.initial_function
+#  ret                  # return
 
 # Your grade will primarily be determined by how well we think you understand 
 # the underlying concepts of each assignment, based not only on your code, but 
