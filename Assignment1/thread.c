@@ -7,26 +7,29 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 // 1.  Write a C data structure, struct thread_t, to represent a thread table 
 //     entry (the data pertaining to a thread). At first, it should have at 
 //     least a stack pointer (perhaps of type void*), and a pointer to an initial 
 //     function (perhaps of type void(*initial_function)(void)).
 
-typedef struct {
+struct thread_t {
   void *sp; // stack pointer
   void(*initial_function)(void);
             // CPU Context
             // Program counter
             // Register State
-} thread_t;
+};
+
+
+void thread_start(struct thread_t * old, struct thread_t * new);
 
 int main()
 {
-  thread_t myThread;
+  struct thread_t myThread;
 
-  
+  return 0;
+}
 
 
 // 2. Write an assembly routine to start a new thread, with the prototype:
@@ -35,6 +38,10 @@ int main()
 //   b.  Save the current stack pointer (%rsp) in old's thread table entry.
 //   c.  Load the stack pointer from new's thread table entry into %rsp.
 //   d.  Jump to the initial function of new.
+
+void thread_start(struct thread_t * old, struct thread_t * new) {
+  return;
+}
 
 // 3. Write an assembly routine to switch between two threads, with the prototype:
 // void thread_switch(struct thread_t * old, struct thread_t * new);
@@ -49,5 +56,3 @@ int main()
 // the underlying concepts of each assignment, based not only on your code, but 
 // also how you've tested your code, and your write-ups.
 
-  return 0;
-}
