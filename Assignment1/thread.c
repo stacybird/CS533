@@ -22,8 +22,19 @@ struct thread_t {
 };
 
 
+struct thread_t current_thread;
+struct thread_t stored_thread;
+
 void thread_start(struct thread_t * old, struct thread_t * new);
 void thread_switch(struct thread_t * old, struct thread_t * new);
+
+void yield() {
+ struct thread_t temp = current_thread;
+ current_thread = stored_thread;
+ stored_thread = temp;
+ thread_switch(&stored_thread, &current_thread);
+}
+
 
 int main()
 {
