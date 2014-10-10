@@ -23,6 +23,7 @@ struct thread_t {
 
 
 void thread_start(struct thread_t * old, struct thread_t * new);
+void thread_switch(struct thread_t * old, struct thread_t * new);
 
 int main()
 {
