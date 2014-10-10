@@ -22,6 +22,7 @@ struct thread_t {
 };
 
 
+int ALLOCATE = 1024;
 struct thread_t current_thread;
 struct thread_t stored_thread;
 
@@ -35,11 +36,28 @@ void yield() {
  thread_switch(&stored_thread, &current_thread);
 }
 
+void test_yield_loop() {
+    printf("testing yield");
+    yield();
+}
 
 int main()
 {
-  struct thread_t myThread; // to test for starters 
+  void *stack_bottom = malloc(ALLOCATE);
+  //printf("%p  stack_bottom\n", stack_bottom);
+  void *stack_top = stack_bottom + 1024;
+  //printf("%p  stack_top\n", stack_top);
+  current_thread.sp = stack_top; 
+  //printf("%p  current_thread\n", &current_thread);
+  //printf("%p  current_thread.sp\n", current_thread.sp);
+  
+  current_thread.initial_function = &yield;
+  //printf("%p  current_thread.initial_function\n", current_thread.initial_function);
+  thread_start(&stored_thread, &current_thread); 
 
+  test_yield_loop();
+
+  free(stack_bottom);
   return 0;
 }
 
