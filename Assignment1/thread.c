@@ -26,7 +26,7 @@ void thread_start(struct thread_t * old, struct thread_t * new);
 
 int main()
 {
-  struct thread_t myThread;
+  struct thread_t myThread; // to test for starters 
 
   return 0;
 }
