@@ -16,13 +16,11 @@
 struct thread_t {
   void *sp; // stack pointer
   void(*initial_function)(void);
-            // CPU Context
-            // Program counter
-            // Register State
+            // CPU Context, Register State in the assembly being pushed onto stack.
 };
 
 
-int ALLOCATE = 1024*1024;
+int ALLOCATE = 1024*1024;  //  1024 felt a little low, doesn't look like this crashes anything.
 struct thread_t current_thread;
 struct thread_t stored_thread;
 
@@ -46,7 +44,7 @@ void test_yield_loop() {
 int main()
 {
   void *stack_bottom = malloc(ALLOCATE);
-  //printf("%p  stack_bottom\n", stack_bottom);
+  //printf("%p  stack_bottom\n", stack_bottom);  
   void *stack_top = stack_bottom + ALLOCATE;
   //printf("%p  stack_top\n", stack_top);
   current_thread.sp = stack_top; 
@@ -65,8 +63,4 @@ int main()
   free(stack_bottom);
   return 0;
 }
-
-// Your grade will primarily be determined by how well we think you understand 
-// the underlying concepts of each assignment, based not only on your code, but 
-// also how you've tested your code, and your write-ups.
 
