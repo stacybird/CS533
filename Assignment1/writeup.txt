@@ -1,0 +1,30 @@
+Stacy Watts
+Assignment 1 writeup 
+
+
+When I started coding the C portion, I knew we were moving the direction of making a thread table entry type (thread_t).  I immediately used a typedef with the struct and had to backtrack later to match the recommended struct prototype for the assembly routine.  I would think down the road to use this as a type, a typedef would be preferable so usage feels natural.  
+
+It was difficult not to dive in and start over-designing this.  It is supposed to be lightweight and fast.  I kept wanting to add more to it because of my dev background.  however, as a building block we need it to be robust enough the handle these context switches correctly as well as quickly.  So it really is that small. 
+
+I found it difficult to walk through the design process through another’s eyes.  When I tend to write code I’ve gotten so use to writing test driven development with my team, I normally would have designed tests to check values first prior to writing the functions.  Going back after the fact and thinking up tests was actually hard. 
+
+One of my methods of testing that the program was doing what I expected, running through with the -g flag set for the build and loading it into gdb.  Success!  the segfault was precisely where I expected it to be.  We hadn’t assigned an address yet for the stack pointer, so I’d expect it to read a garbage address into the stack pointer register, which it did, and then very next thing it did was try to pop something off the “new” stack to restore to a register.  segfault!
+
+Program received signal SIGSEGV, Segmentation fault.
+thread_switch () at thread_rout.s:48
+48       popq %r15            # callee-restore
+
+So in the end I wound up iterating testing with gdb rather than writing testing code.  Most of what I was working with was understanding and debugging the flow laid out for the assignment so I didn’t embellish, or go outside the intended scope for the first assignment.  
+
+my notes of the questions:
+
+
+   * 
+Instead of having main and your target function call yield() in an infinite loop, have them do so for a fixed number of iterations.
+   * 
+Notice that if main finishes first, the other thread's function will not get to finish. Why is this? How could we prevent this?  —  the other thread will not get to finish because the process containing it will have been torn down.  the operating system doesn’t “know" about your little threads implementation.  when the process hits the end, returns, game over.  we could prevent it by waiting for the processes we created :-)  I see we will likely do that soon in an upcoming topic.
+   * 
+Notice that if the other thread's function finishes first, the program will crash with a Segementation Fault. This is harder to understand. What happens when a function ends? Think about how we have constructed the thread's activation stack. What steps could we take to ensure that a thread terminates gracefully?  — interestingly, if the second thread finishes, the context loaded to return to is “wrong” from the OS point of view.  we would have a bp in the heap space, not a bp in the expected stack space.  
+   * 
+Think about how to free the memory associated with a thread's stack. Simply free-ing the stack pointer after the thread has finished will not work. Why? — I actually misread this question at first.  since my first thought was:  the pointer we get from malloc is the handle to that memory, I better keep that handy!  when I read this question about freeing the stack pointer I thought you meant the memory handily I kept - which does work, just fine.  :-)  the sp wouldn’t though.  you’d have to calculate back to the beginning of the block allocated.  we are on the heap, after all.  
+
