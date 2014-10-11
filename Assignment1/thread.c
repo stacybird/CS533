@@ -22,7 +22,7 @@ struct thread_t {
 };
 
 
-int ALLOCATE = 1024;
+int ALLOCATE = 1024*1024;
 struct thread_t current_thread;
 struct thread_t stored_thread;
 
@@ -37,25 +37,30 @@ void yield() {
 }
 
 void test_yield_loop() {
-    printf("testing yield");
+  while (1) {
+    printf("testing yield\n");
     yield();
+  }
 }
 
 int main()
 {
   void *stack_bottom = malloc(ALLOCATE);
   //printf("%p  stack_bottom\n", stack_bottom);
-  void *stack_top = stack_bottom + 1024;
+  void *stack_top = stack_bottom + ALLOCATE;
   //printf("%p  stack_top\n", stack_top);
   current_thread.sp = stack_top; 
   //printf("%p  current_thread\n", &current_thread);
   //printf("%p  current_thread.sp\n", current_thread.sp);
   
-  current_thread.initial_function = &yield;
+  current_thread.initial_function = &test_yield_loop;
   //printf("%p  current_thread.initial_function\n", current_thread.initial_function);
   thread_start(&stored_thread, &current_thread); 
 
-  test_yield_loop();
+  while (1) {
+    printf("testing yield other thread\n");
+    yield();
+  }
 
   free(stack_bottom);
   return 0;
