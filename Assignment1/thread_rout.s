@@ -53,7 +53,3 @@ thread_switch:
   popq %rbx            # callee-restore
   ret                  # return
 
-# Your grade will primarily be determined by how well we think you understand 
-# the underlying concepts of each assignment, based not only on your code, but 
-# also how you've tested your code, and your write-ups.
-
