@@ -51,8 +51,7 @@ thread_switch:
   popq %r12            # callee-restore
   popq %rbp            # callee-restore
   popq %rbx            # callee-restore
-  jmp *8(%rsi)        # jump *new.initial_function
-#  ret                  # return
+  ret                  # return
 
 # Your grade will primarily be determined by how well we think you understand 
 # the underlying concepts of each assignment, based not only on your code, but 
