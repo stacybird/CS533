@@ -1,6 +1,6 @@
 # Stacy Watts
 # CS 533 - Fall 2014
-# Assignment 1
+# Assignment 2
 
 # 2. Write an assembly routine to start a new thread, with the prototype:
 # void thread_start(struct thread_t * old, struct thread_t * new);
