@@ -14,6 +14,7 @@
 .globl thread_start
 
 thread_start:
+  pushq $thread_finish
   pushq %rbx           # callee-save
   pushq %rbp           # callee-save
   pushq %r12           # callee-save
@@ -53,3 +54,12 @@ thread_switch:
   popq %rbx            # callee-restore
   ret                  # return
 
+
+# finish handler at the bottom of the stack which sets the current thread's state to DONE, then calls yield(); 
+
+.globl thread_finish
+
+thread_finish:
+  # set state to done
+  # call yield();
+ 
