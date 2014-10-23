@@ -14,8 +14,6 @@ void test_yield_loop() {
 
 
 
-void thread_start(struct thread_t * old, struct thread_t * new);
-void thread_switch(struct thread_t * old, struct thread_t * new);
 
 
 void foo(void * arg) {
@@ -44,8 +42,8 @@ int main(void) {
   }
 
   free(stack_bottom);
-  return 0;
 
   end assignment 1 testing from main */
+  return 0;
 }
 
