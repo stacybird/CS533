@@ -1,5 +1,7 @@
 #include "scheduler.h"
 
+// all tests we create go in this file.  
+
 
 void foo(void * arg) {
   char * str = (char*) arg;
