@@ -60,6 +60,13 @@ thread_switch:
 .globl thread_finish
 
 thread_finish:
+	pushq	%rbp
+	movq	%rsp, %rbp
+.L2:
+	movl	$3, 40(%rbp)
+	movl	$0, %eax
+	call	yield
+	jmp	.L2
   # set state to done
   # call yield();
  
