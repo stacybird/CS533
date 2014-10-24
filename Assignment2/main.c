@@ -13,12 +13,21 @@ void foo(void * arg) {
   printf("\nfoo threading works! args: %s\n", str);
 }
 
-
-int main(void) {
+void test_foo() {
   scheduler_begin();
   thread_fork(foo, (void*)"bar");
   thread_fork(foo, (void*)"baz");
+  thread_fork(foo, (void*)"bifur");
+  thread_fork(foo, (void*)"bofur");
+  thread_fork(foo, (void*)"bombur");
+  thread_fork(foo, (void*)"fili");
+  thread_fork(foo, (void*)"kili");
   scheduler_end(); 
+}
+
+
+int main(void) {
+  test_foo();
 
   return 0;
 }
