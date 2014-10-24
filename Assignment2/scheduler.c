@@ -8,6 +8,8 @@
 #include "queue.h"
 #include <stdlib.h>
 
+
+int ALLOCATE = 1024*1024;  // stack allocation size
 struct queue * ready_list;
 struct thread_t * current_thread = NULL;
 
@@ -39,7 +41,27 @@ void scheduler_end() {
 // f. Call thread_start with the old current thread as old and the new 
 //    current thread as new.
 void thread_fork(void(*target)(void*), void * arg) {
-
+// a. Allocate a new thread table entry, and allocate its control stack.
+  struct thread_t * new_thread = malloc(sizeof(struct thread_t));
+  void *stack_bottom = malloc(ALLOCATE);
+  void *stack_top = stack_bottom + ALLOCATE;
+  new_thread->sp = stack_top; 
+// b. Set the new thread's initial argument and initial function.
+  new_thread->initial_function = target;
+  new_thread->initial_arg = arg;
+// c. Set the current thread's state to READY and enqueue it on the ready 
+//    list.
+  current_thread->state = READY;
+  thread_enqueue(ready_list, current_thread);
+// d. Set the new thread's state to RUNNING.
+  new_thread->state = RUNNING;
+// e. Save a pointer to the current thread in a temporary variable, then 
+//    set the current thread to the new thread.
+  struct thread_t * temp_thread = current_thread;
+  current_thread = new_thread;
+// f. Call thread_start with the old current thread as old and the new 
+//    current thread as new.
+  thread_start(&temp_thread, &current_thread);
 }
 
 
