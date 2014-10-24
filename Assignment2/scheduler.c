@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 struct queue * ready_list;
-struct thread_t * current_thread;
+struct thread_t * current_thread = NULL;
 
 // 5.  scheduler_begin should initialize and/or allocate any data 
 //     structures our scheduler will need.
@@ -46,7 +46,10 @@ void thread_fork(void(*target)(void*), void * arg) {
 // finish handler at the bottom of the stack which sets the current 
 // thread's state to DONE, then calls yield(); 
 void thread_finish() {
-  // set state to done
+  if (!current_thread) { // if we never scheduled
+    return;
+  }
+  current_thread->state = DONE; // set state to done
   yield();// call yield();
 }
 
