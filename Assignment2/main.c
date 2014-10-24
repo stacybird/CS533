@@ -1,20 +1,10 @@
+// Stacy Watts
+// CS 533 - Fall 2014
+// Assignment 2
+
 #include "scheduler.h"
 
 // all tests we create go in this file.  
-
-/* old data from assignment 1
-int ALLOCATE = 1024*1024;  //  1024 felt a little low, doesn't look like this crashes anything.
-void test_yield_loop() {
-  while (1) {
-    printf("testing yield\n");
-    yield();
-  }
-}
-  end old data from assignment 1 */
-
-
-
-
 
 void foo(void * arg) {
   char * str = (char*) arg;
@@ -28,22 +18,6 @@ int main(void) {
   thread_fork(foo, (void*)"baz");
   scheduler_end(); 
 
-/* begin code from assigment 1 testing in main
-
-  void *stack_bottom = malloc(ALLOCATE);
-  void *stack_top = stack_bottom + ALLOCATE;
-  current_thread.sp = stack_top; 
-  current_thread.initial_function = &test_yield_loop;
-  thread_start(&stored_thread, &current_thread); 
-
-  while (1) {
-    printf("testing yield other thread\n");
-    yield();
-  }
-
-  free(stack_bottom);
-
-  end assignment 1 testing from main */
   return 0;
 }
 

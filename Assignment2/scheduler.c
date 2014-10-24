@@ -1,3 +1,7 @@
+// Stacy Watts
+// CS 533 - Fall 2014
+// Assignment 2
+
 // definitions of our scheduler API functions.
 
 #include "scheduler.h"
