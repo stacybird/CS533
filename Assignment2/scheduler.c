@@ -6,12 +6,15 @@
 
 #include "scheduler.h"
 #include "queue.h"
+#include <stdlib.h>
+
+struct queue * ready_list;
+struct thread_t * current_thread;
 
 // 5.  scheduler_begin should initialize and/or allocate any data 
 //     structures our scheduler will need.
 void scheduler_begin() {
-  
-  
+  ready_list = malloc(sizeof(struct queue));
 }
 
 // 8. Finally, recall that we need a way to prevent the main thread from 
@@ -38,6 +41,7 @@ void scheduler_end() {
 void thread_fork(void(*target)(void*), void * arg) {
 
 }
+
 
 // finish handler at the bottom of the stack which sets the current 
 // thread's state to DONE, then calls yield(); 
