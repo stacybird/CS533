@@ -92,6 +92,21 @@ void thread_finish() {
 // d. Call thread_switch with the old current thread as old and the new 
 //    current thread as new.
 void yield() {
-
+// a. If the current thread is not DONE, set its state to READY and 
+//    enqueue it on the ready list.
+  if (DONE != current_thread->state) {
+    current_thread->state = READY;
+    thread_enqueue(ready_list, current_thread);
+  }
+// b. Dequeue the next thread from the ready list and set its state to 
+//    RUNNING.
+  struct thread_t * next_thread = thread_dequeue(ready_list);
+  next_thread->state = RUNNING;
+// c. Save a pointer to the current thread in a temporary variable, then 
+//    set the current thread to the next thread.
+  struct thread_t * temp_thread = current_thread;
+  current_thread = next_thread;
+// d. Call thread_switch with the old current thread as old and the new 
+  thread_switch(temp_thread, current_thread);
 }
 
