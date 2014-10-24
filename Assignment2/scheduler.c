@@ -13,10 +13,14 @@ int ALLOCATE = 1024*1024;  // stack allocation size
 struct queue * ready_list;
 struct thread_t * current_thread = NULL;
 
+void thread_start(struct thread_t * old, struct thread_t * new);
+void thread_switch(struct thread_t * old, struct thread_t * new);
+
 // 5.  scheduler_begin should initialize and/or allocate any data 
 //     structures our scheduler will need.
 void scheduler_begin() {
   ready_list = malloc(sizeof(struct queue));
+  current_thread = malloc(sizeof(struct thread_t));
 }
 
 // 8. Finally, recall that we need a way to prevent the main thread from 
@@ -61,7 +65,7 @@ void thread_fork(void(*target)(void*), void * arg) {
   current_thread = new_thread;
 // f. Call thread_start with the old current thread as old and the new 
 //    current thread as new.
-  thread_start(&temp_thread, &current_thread);
+  thread_start(temp_thread, current_thread);
 }
 
 
