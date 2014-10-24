@@ -25,7 +25,7 @@ thread_start:
   movq  %rsp, (%rdi)  # *old.sp = %rsp
   movq (%rsi), %rsp   # %rsp = *new.sp
   pushq $thread_finish
-  movq 12(%rsi), %rdi # done with %rdi, overwrite with initial func args
+  movq 16(%rsi), %rdi # done with %rdi, overwrite with initial func args
   jmp *8(%rsi)        # jump *new.initial_function
 
 
