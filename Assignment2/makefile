@@ -5,10 +5,10 @@ DEBUG=-g
 WARN=-Wall
 
 main: main.c
-	$(CC) $(WARN) -o main main.c queue.c scheduler.c thread_rout.s
+	$(CC) $(WARN) -o main main.c queue.c scheduler.c switch.s
 
 debug: main.c
-	$(CC) $(DEBUG) $(WARN) -o mainDebug main.c queue.c scheduler.c thread_rout.s
+	$(CC) $(DEBUG) $(WARN) -o mainDebug main.c queue.c scheduler.c switch.s
 
 queue: queue.c
 	$(CC) $(DEBUG) $(WARN) -o queue queue.c
