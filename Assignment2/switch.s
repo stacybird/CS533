@@ -16,7 +16,6 @@
 #    We'll also want to pass our initial argument to the target function. #    Once you're done with %rdi, you can overwrite it with the value of 
 #    the initial argument.
 thread_start:
-  pushq $thread_finish
   pushq %rbx           # callee-save
   pushq %rbp           # callee-save
   pushq %r12           # callee-save
@@ -25,6 +24,8 @@ thread_start:
   pushq %r15           # callee-save
   movq  %rsp, (%rdi)  # *old.sp = %rsp
   movq (%rsi), %rsp   # %rsp = *new.sp
+  pushq $thread_finish
+  movq 12(%rsi), %rdi # done with %rdi, overwrite with initial func args
   jmp *8(%rsi)        # jump *new.initial_function
 
 
