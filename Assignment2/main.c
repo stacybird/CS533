@@ -3,12 +3,14 @@
 // Assignment 2
 
 #include "scheduler.h"
+#include <stdio.h>
 
 // all tests we create go in this file.  
 
 void foo(void * arg) {
   char * str = (char*) arg;
   /* do important stuff */
+  printf("\nfoo threading works! args: %s\n", str);
 }
 
 
