@@ -10,9 +10,6 @@ main: main.c
 debug: main.c
 	$(CC) $(DEBUG) $(WARN) -o mainDebug main.c queue.c scheduler.c switch.s
 
-queue: queue.c
-	$(CC) $(DEBUG) $(WARN) -o queue queue.c
-
 clean:
-	rm -f main queue mainDebug
+	rm -f main mainDebug
 
