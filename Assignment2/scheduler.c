@@ -15,6 +15,12 @@ void scheduler_end() {
 void thread_fork(void(*target)(void*), void * arg) {
 }
 
+// finish handler at the bottom of the stack which sets the current thread's state to DONE, then calls yield(); 
+void thread_finish() {
+  // set state to done
+  yield();// call yield();
+}
+
 void yield() {
  struct thread_t temp = current_thread;
  current_thread = stored_thread;
