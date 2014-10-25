@@ -1,0 +1,35 @@
+// Stacy Watts
+// CS 533 - Fall 2014
+// Assignment 2
+
+
+I had similar difficulty as with the first assignment with the coding techniques 
+of following another person’s thought process.  I overthought the scheduler for 
+this assignment, assuming we would incorporate all of the work we did on the 
+previous assignment, not just the assembler.  Once I realized that I was in 
+error e.g. re-using the previous yield construct, things went more smoothly, 
+and the code happened more quickly.  
+
+I had difficulty with the thread_finish description for a while until Kendall 
+sent an email with a more detailed description for the steps he used.  I’d been 
+thinking of it backwards, pushing the thread_finish onto the old stack, when in 
+fact in the instructions, he mentions the new stack.  Of course at the time I 
+wasn’t thinking old and new, I was thinking: push first, that must be first in 
+the thread_start routine.  Once I took a step back from it all, and looked at 
+what we were trying to do with the scheduler, Kendall’s instructions made more 
+sense!  The code followed.  
+
+With all the trouble writing the initial code, I haven’t done as much testing 
+as I’d like.  Getting the args passed correctly has been difficult.  I later 
+discovered another assembly off by the size of a pointer error.  Frustrating 
+when it comes down to off by one, even when the one is a pointer.  
+
+Testing so far has been some simple printf statements for foo, and running a 
+sieve of Eratosthenes through its paces up to our thread size allocation limit.  
+If I bump the sieve allocation up to 1000000 it doesn’t work (segfault) since 
+I’ve overrun the allocated space.  Ah well.  I was trying to determine better 
+tests.  so far all the threads “work”, but they’re all running in order.  I 
+tried a variation on the sieve that calls yield every so often.  I left this 
+version in, as it demos the yield back and forth better, as well as main 
+waiting.
+
