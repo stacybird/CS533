@@ -29,7 +29,7 @@ void scheduler_begin() {
 //    solution how you see fit in scheduler_end. You might find the 
 //    is_empty queue predicate useful.
 void scheduler_end() {
-  if (!is_empty(ready_list)) {
+  while (!is_empty(ready_list)) {
     yield();
   }
 }
