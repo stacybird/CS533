@@ -53,6 +53,11 @@ void SieveOfEratosthenes(int n) {
         printf("%d ", i+1);
         markMultiples(arr, i+1, n);
       }
+      if (i%100 == 0) {
+        printf("     yield! n=%d", n);
+        yield();
+        printf("\ncontinue! n=%d   ", n);
+      }
     }
   }
 }
@@ -60,11 +65,12 @@ void SieveOfEratosthenes(int n) {
 void call_sieve(int n) {
   printf("\nFollowing are the prime numbers below %d\n", n);
   SieveOfEratosthenes(n);
+  printf("\nnumbers finished below %d\n", n);
 }
 
 void test_sieve() {
   scheduler_begin();
-  thread_fork(call_sieve, (void*)100000);
+  thread_fork(call_sieve, (void*)50000); // this makes scroll back harder for you  :-)
   thread_fork(call_sieve, (void*)10000);
   thread_fork(call_sieve, (void*)1000);
   thread_fork(call_sieve, (void*)15);
