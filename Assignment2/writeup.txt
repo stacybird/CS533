@@ -33,3 +33,19 @@ tried a variation on the sieve that calls yield every so often.  I left this
 version in, as it demos the yield back and forth better, as well as main 
 waiting.
 
+
+10. Conspicuously absent from this assignment has been any discussion of memory 
+management. Think about when and how to free the memory associated with a 
+thread, including its control stack and thread table entry. How does this 
+change if we want to enable inter-thread control flow, e.g. joins or alerts? 
+
+Without joins and alerts, as soon as a thread is done, we can free the memory
+of the thread.  Unfortunately as soon as we start using IPC things get messy.
+We might add another piece of bookkeping for join pending, or similar structure
+to account for the join process.  We don't want to free that thread until the
+join has happened.
+
+I thought about adding the free to this program, but at the same time wanted 
+to leave it open for now.  I'm not sure yet which direction the next assignment 
+will take.  
+
