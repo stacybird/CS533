@@ -1,14 +1,15 @@
-## Makefile for CS533 assignment 2
+## Makefile for CS533 assignment 3
 
 CC=gcc
 DEBUG=-g
 WARN=-Wall
+FLAGS=-lrt
 
 main: main.c
-	$(CC) $(WARN) -o main main.c queue.c scheduler.c switch.s
+	$(CC) $(WARN) -o main switch.s scheduler.c queue.c async.c main.c $(FLAGS)
 
 debug: main.c
-	$(CC) $(DEBUG) $(WARN) -o debugMain main.c queue.c scheduler.c switch.s
+	$(CC) $(DEBUG) $(WARN) -o debugMain switch.s scheduler.c queue.c async.c main.c $(FLAGS)
 
 clean:
 	rm -f main debugMain 
