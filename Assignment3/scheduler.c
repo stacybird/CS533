@@ -20,7 +20,10 @@ void thread_switch(struct thread_t * old, struct thread_t * new);
 //     structures our scheduler will need.
 void scheduler_begin() {
   ready_list = malloc(sizeof(struct queue));
+  ready_list->head = NULL;
+  ready_list->tail = NULL;
   current_thread = malloc(sizeof(struct thread_t));
+  current_thread->state = RUNNING;
 }
 
 // 8. Finally, recall that we need a way to prevent the main thread from 
@@ -75,9 +78,6 @@ void thread_fork(void(*target)(void*), void * arg) {
 // finish handler at the bottom of the stack which sets the current 
 // thread's state to DONE, then calls yield(); 
 void thread_finish() {
-  if (!current_thread) { // if we never scheduled
-    return;
-  }
   current_thread->state = DONE; // set state to done
   yield();// call yield();
 }
