@@ -3,10 +3,10 @@
 // Assignment 3
 
 #include "scheduler.h"
-#include <aio.h>
-#include <errno.h>
-#include <unistd.h>
-#include <string.h>
+#include <aio.h>       // For struct aiocb, aio_read, aio_error, aio_return
+#include <errno.h>     // For EINPROGRESS
+#include <unistd.h>    // For lseek, SEEK_CUR, SEEK_END, SEEK_SET
+#include <string.h>    // For memset
 
 // Use the AIO interface to create an AIO control block and initiate an 
 // appropriate asynchronous read. Yield until the request is complete.
@@ -21,5 +21,7 @@
 // part of this assignment, since aio_read does not seek automatically.
 
 ssize_t read_wrap(int fd, void * buf, size_t count) {
-      // your code here!
+  struct aiocb *aiocbp;
+  aio_read();
+
 }
