@@ -62,10 +62,11 @@ void SieveOfEratosthenes(int n) {
   }
 }
 
-void call_sieve(int n) {
-  printf("\nFollowing are the prime numbers below %d\n", n);
-  SieveOfEratosthenes(n);
-  printf("\nnumbers finished below %d\n", n);
+void call_sieve(void * n) {
+  int a = (int)n;
+  printf("\nFollowing are the prime numbers below %d\n", a);
+  SieveOfEratosthenes(a);
+  printf("\nnumbers finished below %d\n", a);
 }
 
 void test_sieve() {
