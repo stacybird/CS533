@@ -22,6 +22,20 @@
 
 ssize_t read_wrap(int fd, void * buf, size_t count) {
   struct aiocb *aiocbp;
-  aio_read();
-
+//  aiocbp->aio_fildes = open(fd, O_RDONLY);
+  if (aiocbp->aio_fildes == -1)
+//    errExit("open");
+//  printf("opened on descriptor %d\n", aiocbp->aio_fildes);
+  aio_read(aiocbp);
+  return 0;
 }
+
+/* from read()
+       read() attempts to read up to count bytes from file descriptor fd
+       into the buffer starting at buf.
+
+       On files that support seeking, the read operation commences at the
+       current file offset, and the file offset is incremented by the number
+       of bytes read.  If the current file offset is at or past the end of
+       file, no bytes are read, and read() returns zero.                    */
+
