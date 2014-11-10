@@ -5,8 +5,12 @@
 #include "scheduler.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 // all tests we create go in this file.  
+
+ssize_t read_wrap(int fd, void * buf, size_t count);
 
 void foo(void * arg) {
   char * str = (char*) arg;
@@ -62,27 +66,13 @@ void SieveOfEratosthenes(int n) {
   }
 }
 
-void call_sieve(void * n) {
-  int a = (int)n;
-  printf("\nFollowing are the prime numbers below %d\n", a);
-  SieveOfEratosthenes(a);
-  printf("\nnumbers finished below %d\n", a);
-}
-
-void test_sieve() {
-  scheduler_begin();
-  thread_fork(call_sieve, (void*)50000); // this makes scroll back harder for you  :-)
-  thread_fork(call_sieve, (void*)10000);
-  thread_fork(call_sieve, (void*)1000);
-  thread_fork(call_sieve, (void*)15);
-  thread_fork(call_sieve, (void*)5);
-  scheduler_end();
-}
-
-
 int main(void) {
-  test_foo();
-  test_sieve();
+//  test_foo();
+  int filedesc = open("test.txt", O_RDONLY);
+  void * buffer = NULL;
+  size_t my_count = 0;
+  read_wrap(filedesc, buffer, my_count);
+
   return 0;
 }
 
