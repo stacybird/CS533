@@ -1,6 +1,6 @@
 // Stacy Watts
 // CS 533 - Fall 2014
-// Assignment 2
+// Assignment 3
 
 #include "scheduler.h"
 #include <stdio.h>
@@ -66,31 +66,47 @@ void SieveOfEratosthenes(int n) {
   }
 }
 
-int main(void) {
-//  test_foo();
-  int filedesc = open("test.txt", O_RDONLY);
+void test_read(void * arg) {
+  char * str = (char*) arg;
+  int filedesc = open(str, O_RDONLY);
   char buffer[20];
   size_t buf_size = 0;
   size_t my_count = 0;
   buf_size = sizeof(buffer);
-  // test read first
   my_count = read(filedesc, buffer, buf_size);
-  do {
+//  do {
     printf("%s", buffer);
     printf("*");
     my_count = read(filedesc, buffer, buf_size);
-  } while (my_count != 0);
-  printf("end read\n");
+//  } while (my_count != 0);
+  printf("\n****    end read of %s\n", str);
+  thread_finish();
+}
 
-  // next test read_wrap
+void test_read_wrap(void * arg) {
+  char * str = (char*) arg;
+  int filedesc = open(str, O_RDONLY);
+  char buffer[20];
+  size_t buf_size = 0;
+  size_t my_count = 0;
+  buf_size = sizeof(buffer);
   my_count = read_wrap(filedesc, buffer, buf_size);
   do {
+    my_count = read_wrap(filedesc, buffer, buf_size);
     printf("%s", buffer);
     printf("*");
-    my_count = read_wrap(filedesc, buffer, buf_size);
   } while (my_count != 0);
-  printf("end read_wrap\n");
+  printf("\n****    end read_wrap of %s\n", str);
+  thread_finish();
+}
 
+int main(void) {
+  scheduler_begin();
+  //thread_fork(test_read, (void*)"test.txt");
+  thread_fork(test_read_wrap, (void*)"test.txt");
+  thread_fork(test_read_wrap, (void*)"test.txt");
+  thread_fork(test_read_wrap, (void*)"test.txt");
+  scheduler_end();
   return 0;
 }
 
