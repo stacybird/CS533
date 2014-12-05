@@ -23,32 +23,36 @@
 // part of this assignment, since aio_read does not seek automatically.
 
 ssize_t read_wrap(int fd, void * buf, size_t count) {
+  off_t offset;
   int status;
   int size = sizeof(buf);
-  struct aiocb *aiocbp = malloc(sizeof(struct aiocb));
+  int bytes_read;
+
+  struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
   if (aiocbp == NULL) {
     do {
       perror("malloc issue");
       exit(EXIT_FAILURE); 
     } while (0);
   }
-  aiocbp->aio_fildes = fd;
+  aiocbp->aio_fildes = fd;  // set the file
   if (aiocbp->aio_fildes == -1){
     do { 
       perror("opened on file");
       exit(EXIT_FAILURE); 
     } while (0);
   }
-  aiocbp->aio_buf = malloc(size);
+  aiocbp->aio_buf = buf;
+  //malloc(size); // allocate for the buffer
   if (aiocbp->aio_buf == NULL) {
     do { 
       perror("malloc issue");
       exit(EXIT_FAILURE); 
     } while (0);
   }
-  aiocbp->aio_nbytes = size;
-  aiocbp->aio_reqprio = 0;
-  aiocbp->aio_offset = 0;
+  aiocbp->aio_nbytes = size; // number of bytes to read
+  aiocbp->aio_reqprio = 0; // no additional priority set 
+  aiocbp->aio_offset = SEEK_CUR;  // offset for the file
   aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
   
   status = aio_read(aiocbp);  // start the read
@@ -63,12 +67,13 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
     printf("Async request still going.  \n");
     yield();
     status = aio_error(aiocbp);
-    switch (status) {
+  }
+  switch (status) {
     case 0:
       printf("I/O succeeded\n");
-      break;
-    case EINPROGRESS:
-      printf("In progress\n");
+      bytes_read = aio_return(aiocbp);
+      offset = lseek(fd, size, SEEK_CUR); // set the new offset after the read
+      //strcpy(buf, aiocbp->aio_buf);
       break;
     case ECANCELED:
       printf("Canceled\n");
@@ -79,10 +84,9 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
         exit(EXIT_FAILURE); 
       } while (0);
       break;
-    }
   }
 
-  return status;
+  return bytes_read;
 }
 
 /* from read()
