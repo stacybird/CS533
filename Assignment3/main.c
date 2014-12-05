@@ -69,9 +69,27 @@ void SieveOfEratosthenes(int n) {
 int main(void) {
 //  test_foo();
   int filedesc = open("test.txt", O_RDONLY);
-  void * buffer = NULL;
+  char buffer[20];
+  size_t buf_size = 0;
   size_t my_count = 0;
-  read_wrap(filedesc, buffer, my_count);
+  buf_size = sizeof(buffer);
+  // test read first
+  my_count = read(filedesc, buffer, buf_size);
+  do {
+    printf("%s", buffer);
+    printf("*");
+    my_count = read(filedesc, buffer, buf_size);
+  } while (my_count != 0);
+  printf("end read\n");
+
+  // next test read_wrap
+  my_count = read_wrap(filedesc, buffer, buf_size);
+  do {
+    printf("%s", buffer);
+    printf("*");
+    my_count = read_wrap(filedesc, buffer, buf_size);
+  } while (my_count != 0);
+  printf("end read_wrap\n");
 
   return 0;
 }
