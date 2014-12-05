@@ -3,6 +3,8 @@
 // Assignment 3
 
 #include "scheduler.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <aio.h>       // For struct aiocb, aio_read, aio_error, aio_return
 #include <errno.h>     // For EINPROGRESS
 #include <unistd.h>    // For lseek, SEEK_CUR, SEEK_END, SEEK_SET
@@ -21,13 +23,66 @@
 // part of this assignment, since aio_read does not seek automatically.
 
 ssize_t read_wrap(int fd, void * buf, size_t count) {
-  struct aiocb *aiocbp;
-//  aiocbp->aio_fildes = open(fd, O_RDONLY);
-  if (aiocbp->aio_fildes == -1)
-//    errExit("open");
-//  printf("opened on descriptor %d\n", aiocbp->aio_fildes);
-  aio_read(aiocbp);
-  return 0;
+  int status;
+  int size = sizeof(buf);
+  struct aiocb *aiocbp = malloc(sizeof(struct aiocb));
+  if (aiocbp == NULL) {
+    do {
+      perror("malloc issue");
+      exit(EXIT_FAILURE); 
+    } while (0);
+  }
+  aiocbp->aio_fildes = fd;
+  if (aiocbp->aio_fildes == -1){
+    do { 
+      perror("opened on file");
+      exit(EXIT_FAILURE); 
+    } while (0);
+  }
+  aiocbp->aio_buf = malloc(size);
+  if (aiocbp->aio_buf == NULL) {
+    do { 
+      perror("malloc issue");
+      exit(EXIT_FAILURE); 
+    } while (0);
+  }
+  aiocbp->aio_nbytes = size;
+  aiocbp->aio_reqprio = 0;
+  aiocbp->aio_offset = 0;
+  aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
+  
+  status = aio_read(aiocbp);  // start the read
+  if (status == -1) {
+    do { 
+      perror("aio_read issue");
+      exit(EXIT_FAILURE); 
+    } while (0);
+  }
+  
+  while (status == EINPROGRESS) {
+    printf("Async request still going.  \n");
+    yield();
+    status = aio_error(aiocbp);
+    switch (status) {
+    case 0:
+      printf("I/O succeeded\n");
+      break;
+    case EINPROGRESS:
+      printf("In progress\n");
+      break;
+    case ECANCELED:
+      printf("Canceled\n");
+      break;
+    default:
+      do { 
+        perror("aio_error");
+        exit(EXIT_FAILURE); 
+      } while (0);
+      break;
+    }
+  }
+
+  return status;
 }
 
 /* from read()
@@ -37,5 +92,15 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
        On files that support seeking, the read operation commences at the
        current file offset, and the file offset is incremented by the number
        of bytes read.  If the current file offset is at or past the end of
-       file, no bytes are read, and read() returns zero.                    */
+       file, no bytes are read, and read() returns zero.                    
+
+       On success, the number of bytes read is returned (zero indicates end
+       of file), and the file position is advanced by this number.  It is
+       not an error if this number is smaller than the number of bytes
+       requested; this may happen for example because fewer bytes are
+       actually available right now (maybe because we were close to end-of-
+       file, or because we are reading from a pipe, or from a terminal), or
+       because read() was interrupted by a signal.  On error, -1 is
+       returned, and errno is set appropriately.  In this case, it is left
+       unspecified whether the file position (if any) changes.             */
 
