@@ -115,3 +115,43 @@ void yield() {
   thread_switch(temp_thread, current_thread);
 }
 
+// 4.3 Code a data structure, struct mutex that represents your lock, 
+//     and three functions:
+//       void mutex_init(struct mutex *)
+//       void mutex_lock(struct mutex *)
+//       void mutex_unlock(struct mutex *)
+//     mutex_init should initialize all fields of struct mutex. mutex_lock
+//     should attempt to acquire the lock, and block the calling thread if
+//     the lock is already held. mutex_unlock should at least wake up a 
+//     thread waiting for the lock. It may do other things as well 
+//     depending on the design you choose.
+void mutex_init(struct mutex * lock) {
+  lock.holder == NULL;
+  blocked_list = malloc(sizeof(struct queue));
+  blocked_list->head = NULL;
+  blocked_list->tail = NULL;
+}
+
+void mutex_lock(struct mutex * lock) {
+  if (lock->holder == NULL) {
+    lock->holder = current_thread;
+  }
+  else {
+    current_thread->state = BLOCKED;
+    thread_enqueue(lock->blocked_list, current_thread);
+    yield();
+  }
+}
+
+void mutex_unlock(struct mutex * lock) {
+  // just lelease lock if noone waiting
+  if (is_empty(lock->blocked_list)) {
+    lock->holder = NULL;
+  } // otherwise release to next waiting for lock
+  else {
+    lock->holder = thread_dequeue(lock->blocked_list);
+    lock->holder->state = READY;
+    thread_enqueue(ready_list, lock->holder);
+  }
+}
+
