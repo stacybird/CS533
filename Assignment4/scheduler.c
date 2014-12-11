@@ -95,10 +95,11 @@ void yield() {
 //     thread waiting for the lock. It may do other things as well 
 //     depending on the design you choose.
 void mutex_init(struct mutex * lock) {
+  lock = malloc(sizeof(struct lock));
   lock.holder == NULL;
-  blocked_list = malloc(sizeof(struct queue));
-  blocked_list->head = NULL;
-  blocked_list->tail = NULL;
+  lock->blocked_list = malloc(sizeof(struct queue));
+  lock->blocked_list->head = NULL;
+  lock->blocked_list->tail = NULL;
 }
 
 
@@ -123,6 +124,51 @@ void mutex_unlock(struct mutex * lock) {
     lock->holder = thread_dequeue(lock->blocked_list);
     lock->holder->state = READY;
     thread_enqueue(ready_list, lock->holder);
+  }
+}
+
+
+// 4.5 Code a data structure struct condition, that represents your 
+//     condition variable, and four functions:
+//       void condition_init(struct condition *)
+//       void condition_wait(struct condition *)
+//       void condition_signal(struct condition *)
+//       void condition_broadcast(struct condition *)
+//     condition_init should initialize all fields of struct condition. 
+//     condition_wait should cause a thread to wait on the condition, and 
+//     condition_signal should wake up a waiting thread (but not suspend 
+//     the current thread, as per MESA semantics). condition_broadcast 
+//     should signal all waiting threads.
+void condition_init(struct condition * cv) {
+  cv = malloc(sizeof(struct cv));
+  cv->lock = NULL;
+}
+
+void condition_wait(struct condition * cv) {
+  if (cv->lock != NULL) {
+    current_thread->state = BLOCKED;
+    thread_enqueue(cv->lock->blocked_list, current_thread);
+    yield();
+  }
+}
+
+
+// wake next up on blocked list, add to ready list.  
+void condition_signal(struct condition * cv) {
+  struct thread_t * temp_thread;
+  temp_thread = thread_dequeue(cv->lock->blocked_list);
+  temp_thread->state = READY;
+  thread_enqueue(ready_list, temp_thread);
+}
+
+
+// wake all threads on blocked queue.
+void condition_broadcast(struct condition * cv) {
+  struct thread_t * temp_thread;
+  while (!is_empty(cv->lock->blocked_list)) {
+    temp_thread = thread_dequeue(cv->lock->blocked_list);
+    temp_thread->state = READY;
+    thread_enqueue(ready_list, temp_thread);
   }
 }
 
