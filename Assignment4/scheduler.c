@@ -5,7 +5,6 @@
 // definitions of our scheduler API functions.
 
 #include "scheduler.h"
-#include "queue.h"
 #include <stdlib.h>
 
 
@@ -95,8 +94,8 @@ void yield() {
 //     thread waiting for the lock. It may do other things as well 
 //     depending on the design you choose.
 void mutex_init(struct mutex * lock) {
-  lock = malloc(sizeof(struct lock));
-  lock.holder == NULL;
+  lock = malloc(sizeof(struct mutex));
+  lock->holder = NULL;
   lock->blocked_list = malloc(sizeof(struct queue));
   lock->blocked_list->head = NULL;
   lock->blocked_list->tail = NULL;
@@ -140,7 +139,7 @@ void mutex_unlock(struct mutex * lock) {
 //     the current thread, as per MESA semantics). condition_broadcast 
 //     should signal all waiting threads.
 void condition_init(struct condition * cv) {
-  cv = malloc(sizeof(struct cv));
+  cv = malloc(sizeof(struct condition));
   cv->lock = NULL;
 }
 
