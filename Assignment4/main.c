@@ -10,8 +10,13 @@
 
 // all tests we create go in this file.  
 
-struct mutex lock_one;
+// vars for first test
+struct mutex lock_test;
 int shared_counter = 0;
+
+// vars for second test
+int NUM_PHIL = 5;
+struct mutex chopstick[5];
 
 
 // I initialy wrote this out and had to debug why the value never got to 16
@@ -20,7 +25,7 @@ int shared_counter = 0;
 void test_mutex_lock(void * arg) {
    printf("%s  attempts locking, shared counter = %d\n", 
          (char *)arg, shared_counter);
-   mutex_lock(&lock_one);
+   mutex_lock(&lock_test);
    int temp = shared_counter;
    printf("%s  in critical section, shared counter = %d\n", 
          (char *)arg, shared_counter);
@@ -31,14 +36,14 @@ void test_mutex_lock(void * arg) {
    printf("%s  after update in critical section shared counter = %d\n", 
          (char *)arg, shared_counter);
    yield();
-   mutex_unlock(&lock_one);
+   mutex_unlock(&lock_test);
    printf("%s  after lock release, shared counter = %d\n", 
          (char *)arg, shared_counter);
    yield();
    // second time for locking
    printf("%s  attempts 2nd locking, shared counter = %d\n", 
          (char *)arg, shared_counter);
-   mutex_lock(&lock_one);
+   mutex_lock(&lock_test);
    temp = shared_counter;
    printf("%s  in 2nd critical section, shared counter = %d\n", 
          (char *)arg, shared_counter);
@@ -49,7 +54,7 @@ void test_mutex_lock(void * arg) {
    printf("%s  after update in 2nd critical section shared counter = %d\n",
          (char *)arg, shared_counter);
    yield();
-   mutex_unlock(&lock_one);
+   mutex_unlock(&lock_test);
    printf("%s  after lock release, shared counter = %d\n", 
          (char *)arg, shared_counter);
 }
@@ -67,12 +72,42 @@ void test_threaded_mutex() {
 }
 
 
+void test_cv(void * arg) {
+  int left = *(int *)arg;
+  printf("%d\n", left);
+  int right = (left+1) % NUM_PHIL;
+  printf("Philosopher %d  will now get the %d chopstick.\n", left, left);
+  mutex_lock(&chopstick[left]);
+  yield();
+  printf("Philosopher %d  will now get the %d chopstick.\n", right, right);
+  mutex_lock(&chopstick[right]);
+  printf("using both chopsticks: %d %d\n", left, right); 
+  yield();
+  printf("Philosopher %d  will now yield the  chopstick.\n", right);
+  mutex_unlock(&chopstick[right]);
+  yield();
+  printf("Philosopher %d  will now yield the %d chopstick.\n", left, left);
+  mutex_unlock(&chopstick[left]);
+  yield();
+}
+
+
+
+
+void test_dining() {
+  int i = 0;
+  for (i = 0; i<NUM_PHIL; ++i) {
+    thread_fork(test_cv, (void*)&i);
+  }
+}
+
 
 int main(void) {
   scheduler_begin();
-  mutex_init(&lock_one);
+  mutex_init(&lock_test);
   //
-  test_threaded_mutex();
+  // test_threaded_mutex();
+  test_dining();
   //
   scheduler_end();
   return 0;
