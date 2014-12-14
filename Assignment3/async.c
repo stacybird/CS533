@@ -23,7 +23,7 @@
 // part of this assignment, since aio_read does not seek automatically.
 
 ssize_t read_wrap(int fd, void * buf, size_t count) {
-  off_t offset;
+//  off_t offset;
   int status;
   int size = sizeof(buf);
   int bytes_read;
@@ -72,7 +72,7 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
     case 0:
       printf("I/O succeeded\n");
       bytes_read = aio_return(aiocbp);
-      offset = lseek(fd, size, SEEK_CUR); // set the new offset after the read
+      //offset = lseek(fd, size, SEEK_CUR); // set the new offset after the read
       //strcpy(buf, aiocbp->aio_buf);
       break;
     case ECANCELED:
