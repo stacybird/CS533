@@ -24,6 +24,17 @@ void test_dining_mutex(void * arg);
 void test_dining();
 
 
+void test_cv(void * arg) {
+
+}
+
+
+void test_dining_cv() {
+  int i = 0;
+  for (i = 0; i<NUM_PHIL; ++i) {
+    thread_fork(test_cv, (void*)&i);
+  }
+}
 
 
 int main(void) {
@@ -31,7 +42,8 @@ int main(void) {
   mutex_init(&lock_test);
   //
   // test_threaded_mutex();  // this is the test for part 1.
-  test_dining();  // This is the naive test for part 2.
+   test_dining();  // This is the naive test for part 2.
+  test_dining_cv();
   //
   scheduler_end();
   return 0;
@@ -131,7 +143,7 @@ void test_dining_mutex(void * arg) {
   yield();
   printf("Philosopher %d  will now get the %d chopstick.\n", left, right);
   mutex_lock(&chopstick[right]);
-  printf("Philosopher %d using both chopsticks: %d %d\n", left, left, right);
+  printf("***** Philosopher %d using both chopsticks: %d %d *****\n", left, left, right);
   yield();
   printf("Philosopher %d  will now yield the %d chopstick.\n", left, right);
   mutex_unlock(&chopstick[right]);
@@ -144,7 +156,9 @@ void test_dining_mutex(void * arg) {
 
 void test_dining() {
   int i = 0;
+  mutex_init(&chopstick[NUM_PHIL]);
   for (i = 0; i<NUM_PHIL; ++i) {
+    mutex_init(&chopstick[i]);
     thread_fork(test_dining_mutex, (void*)&i);
   }
 }
