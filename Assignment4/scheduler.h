@@ -23,7 +23,7 @@ struct thread_t {
 // mutex that is currently held. 
 struct mutex {
   struct thread_t * holder;
-  struct queue * blocked_list;
+  struct queue blocked_list;
 };
 
 // Design a condition variable that has MESA semantics. You may design it 
