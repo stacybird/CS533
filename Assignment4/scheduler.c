@@ -147,7 +147,7 @@ void condition_init(struct condition * cv) {
 }
 
 void condition_wait(struct condition * cv) {
-  if (cv->lock != NULL) {
+  if (cv->lock->holder != NULL) {
     current_thread->state = BLOCKED;
     thread_enqueue(&cv->lock->blocked_list, current_thread);
     yield();
@@ -158,9 +158,11 @@ void condition_wait(struct condition * cv) {
 // wake next up on blocked list, add to ready list.  
 void condition_signal(struct condition * cv) {
   struct thread_t * temp_thread;
-  temp_thread = thread_dequeue(&cv->lock->blocked_list);
-  temp_thread->state = READY;
-  thread_enqueue(ready_list, temp_thread);
+  if (!is_empty(&cv->lock->blocked_list)) {
+    temp_thread = thread_dequeue(&cv->lock->blocked_list);
+    temp_thread->state = READY;
+    thread_enqueue(ready_list, temp_thread);
+  }
 }
 
 
