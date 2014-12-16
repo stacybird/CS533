@@ -17,6 +17,7 @@ int shared_counter = 0;
 // vars for second test
 int NUM_PHIL = 5;
 struct mutex chopstick[5];
+struct condition chopstick_held[5];
 
 void test_mutex_lock(void * arg);
 void test_threaded_mutex();
@@ -24,13 +25,48 @@ void test_dining_mutex(void * arg);
 void test_dining();
 
 
-void test_cv(void * arg) {
+void wait_both_free(int i) {
+  condition_wait(&chopstick_held[(i+1) % NUM_PHIL]);
+  condition_wait(&chopstick_held[i]);
+}
 
+
+void signal_both_free(int i) {
+  condition_signal(&chopstick_held[(i+1) % NUM_PHIL]);
+  condition_signal(&chopstick_held[i]);
+}
+
+
+void test_cv(void * arg) {
+  int left = *(int *)arg;
+  printf("\n");
+  int right = (left+1) % NUM_PHIL;
+  printf("Yield! (Philosopher %d)\n", left);
+  yield();
+  wait_both_free(left);
+  printf("Philosopher %d  will now get the %d chopstick.\n", left, left);
+  mutex_lock(&chopstick[left]);
+  printf("Philosopher %d  will now get the %d chopstick.\n", left, right);
+  mutex_lock(&chopstick[right]);
+  printf("Yield! (Philosopher %d)\n", left);
+  yield();
+  printf("***** Philosopher %d using both chopsticks: %d %d *****\n", left, left, right);
+  signal_both_free(left);
+  printf("signal  %d  %d\n", left, right);
+  mutex_unlock(&chopstick[left]);
+  mutex_unlock(&chopstick[right]);
+  printf("Yield! (Philosopher %d)\n", left);
+  yield();
 }
 
 
 void test_dining_cv() {
   int i = 0;
+  for (i = 0; i<NUM_PHIL; ++i) {
+    mutex_init(&chopstick[i]);
+    condition_init(&chopstick_held[i]);
+    chopstick_held[i].lock = &chopstick[i];
+  }
   for (i = 0; i<NUM_PHIL; ++i) {
     thread_fork(test_cv, (void*)&i);
   }
@@ -41,9 +77,9 @@ int main(void) {
   scheduler_begin();
   mutex_init(&lock_test);
   //
-  // test_threaded_mutex();  // this is the test for part 1.
-   test_dining();  // This is the naive test for part 2.
-  test_dining_cv();
+  test_threaded_mutex();  // this is the test for part 1.
+  // test_dining();  // This is the naive test for philosophers (mutexes)
+  test_dining_cv(); // This is the cv test for philosophers
   //
   scheduler_end();
   return 0;
