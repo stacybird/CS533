@@ -1,0 +1,74 @@
+// Stacy Watts
+// CS 533 - Fall 2014
+// Assignment 4
+
+When I started testing the mutex, the simple case worked really well.  All the
+threads interleaved, but the common value was only updated once the lock was 
+held.  Then I started adding to the complexity and made a simple mistake:  I 
+copied a couple lines of code without reading the new shared value.  So the 
+function had the value from the first time that thread ran, and clobbered the 
+good data.  Just goes to show with simple but threaded code even simple mistakes 
+can clobber data in a big way.  The mistake cut the expected value by a factor 
+depending on the interleaving.  Fix was simple: do what I should have done and 
+read the value after acquiring the lock rather than using a stale value.  
+
+Incidentally when I first started writing the lock, it worked so well I actually
+wrote code and left it in the bottom of the main.c file to re-check that the 
+scheduler was functioning properly with yield!  When you write the lock 
+correctly the first time, makes it hard to see if the scheduler still works, 
+since the code output looks sequential!  
+
+
+The second portion took more testing, I had a couple of bugs in my cv 
+implementation at the outset.  I decided on the Dining Philosophers problem.  
+Implemented Dining Philosophers with the Condition Variables checking for both 
+locks being free.  Really most of the reason this works so well is that we are 
+running on one (kernel) thread.  If there were true concurrency this wouldn’t 
+hold up.  Since we have a single condition variable, that requires two condition
+checks(condition being is the lock held already), one per chopstick.  This is 
+far from an ideal solution, as each chopstick is checked individually.  The 
+solution works fairly well, in that the philosophers all get to eat.  More 
+testing could be done on this front with looping over philosophers multiple 
+times, or adding an intermix of which starts first.  The worst case seems to be 
+when they try sequentially, it is a lock cascade as they are waiting in turn for
+the next in the pair.  Best case is when they alternate somewhat.  Two locks 
+will be available, and the others get the locks needed on completion.  
+
+I had turned off the first test while I ran the second test, then flipped both
+on to turn it in.  Based on the intermixed readout you can determine which are 
+threads with a counter and which are threads as philosophers, the distinction 
+between the two outputs.  Up to you if you choose to comment either out in the 
+main section.  I’ve also left the test commented and in place that was a 
+precursor to later tests.  The commented test work, but didn’t yet meet the 
+test specs.  Left it in for documentation purposes.  
+
+
+Discussion question:
+
+Our mutex locks works because the lock variables themselves are implicitly 
+protected by mutual exclusion -- the lock and unlock operations are "atomic" 
+because they do not yield and should not be affected by asynchronous reading 
+operations.
+
+Your next assignment will be to add a second kernel thread to your user-level 
+thread scheduler, to allow two user-level threads to run in parallel. How will 
+this affect the operation of your blocking mutex lock? What additional 
+mechanisms might we need in order to ensure that our programs are safe?
+
+
+Discussion answer:
+
+I believe I already started answering this in finishing the cv section.  To 
+ensure our programs are safe when we introduce true concurrency we would have 
+to have the locks be atomic.  presently these two instructions:
+  if (lock->holder == NULL) 
+  lock->holder = current_thread;
+would pose an issue if there were true concurrency.  Adding to the blocked list
+without first locking it (atomically) would also be a source of concurrent 
+access.  If two kernel threads attempted to set this value at the same time to
+their own current_thread, only one would win, but we wouldn’t know which.  It is
+entirely possible for multiple kernel threads to test and then set the lock at
+the same time, making the critical section computation nondeterministic, and 
+making the value of the lock holder also nondeterministic.  What we need here is
+a way to atomically test and set to ensure mutual exclusion.  
+
