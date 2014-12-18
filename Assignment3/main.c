@@ -70,15 +70,15 @@ void test_read(void * arg) {
   char * str = (char*) arg;
   int filedesc = open(str, O_RDONLY);
   char buffer[20];
-  size_t buf_size = 0;
-  size_t my_count = 0;
+  ssize_t buf_size = 0;
+  ssize_t my_count = 0;
   buf_size = sizeof(buffer);
   my_count = read(filedesc, buffer, buf_size);
-//  do {
+  do {
     printf("%s", buffer);
     printf("*");
     my_count = read(filedesc, buffer, buf_size);
-//  } while (my_count != 0);
+  } while (my_count != 0);
   printf("\n****    end read of %s\n", str);
   thread_finish();
 }
@@ -87,8 +87,8 @@ void test_read_wrap(void * arg) {
   char * str = (char*) arg;
   int filedesc = open(str, O_RDONLY);
   char buffer[20];
-  size_t buf_size = 0;
-  size_t my_count = 0;
+  ssize_t buf_size = 0;
+  ssize_t my_count = 0;
   buf_size = sizeof(buffer);
   my_count = read_wrap(filedesc, buffer, buf_size);
   do {
