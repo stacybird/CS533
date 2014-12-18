@@ -29,26 +29,23 @@
 ssize_t read_wrap(int fd, void * buf, size_t count) {
 //  off_t offset;
   int status;
-  int size = sizeof(buf);
   int bytes_read;
+  off_t offset;
 
 // design choice:  errors currently too strict.  severaly of these need to bubble up.  
 // only catch where read would have.
   struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
   if (aiocbp == NULL) {
       perror("malloc issue");
-      exit(EXIT_FAILURE); 
   }
   aiocbp->aio_fildes = fd;  // set the file
   if (aiocbp->aio_fildes == -1){
       perror("opened on file");
-      exit(EXIT_FAILURE); 
   }
   aiocbp->aio_buf = buf;
   //malloc(size); // allocate for the buffer
   if (aiocbp->aio_buf == NULL) {
       perror("malloc issue");
-      exit(EXIT_FAILURE); 
   }
   aiocbp->aio_nbytes = count; // number of bytes to read
   aiocbp->aio_reqprio = 0; // no additional priority set 
@@ -58,7 +55,6 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   status = aio_read(aiocbp);  // start the read
   if (status == -1) {
       perror("aio_read issue");
-      exit(EXIT_FAILURE); 
   }
   
   while (status == EINPROGRESS) {
@@ -70,15 +66,14 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
     case 0:
       printf("I/O succeeded\n");
       bytes_read = aio_return(aiocbp);
-      //offset = lseek(fd, size, SEEK_CUR); // set the new offset after the read
-      //strcpy(buf, aiocbp->aio_buf);
+      offset = lseek(fd, bytes_read, SEEK_CUR); // set the new offset after the read
+      strcpy(buf, aiocbp->aio_buf);
       break;
     case ECANCELED:
       printf("Canceled\n");
       break;
     default:
-        perror("aio_error");
-        exit(EXIT_FAILURE); 
+      perror("aio_error");
       break;
   }
 
