@@ -22,45 +22,43 @@
 // in the file, just as read would have. This is arguably the most difficult 
 // part of this assignment, since aio_read does not seek automatically.
 
+
+
+// ******* rework lseek section to check for all valid kinds if read input.
+// ******* valid includes things like stdin.
 ssize_t read_wrap(int fd, void * buf, size_t count) {
 //  off_t offset;
   int status;
   int size = sizeof(buf);
   int bytes_read;
 
+// design choice:  errors currently too strict.  severaly of these need to bubble up.  
+// only catch where read would have.
   struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
   if (aiocbp == NULL) {
-    do {
       perror("malloc issue");
       exit(EXIT_FAILURE); 
-    } while (0);
   }
   aiocbp->aio_fildes = fd;  // set the file
   if (aiocbp->aio_fildes == -1){
-    do { 
       perror("opened on file");
       exit(EXIT_FAILURE); 
-    } while (0);
   }
   aiocbp->aio_buf = buf;
   //malloc(size); // allocate for the buffer
   if (aiocbp->aio_buf == NULL) {
-    do { 
       perror("malloc issue");
       exit(EXIT_FAILURE); 
-    } while (0);
   }
-  aiocbp->aio_nbytes = size; // number of bytes to read
+  aiocbp->aio_nbytes = count; // number of bytes to read
   aiocbp->aio_reqprio = 0; // no additional priority set 
-  aiocbp->aio_offset = SEEK_CUR;  // offset for the file
+  aiocbp->aio_offset = lseek(fd, 0, SEEK_CUR);  // offset for the file
   aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
   
   status = aio_read(aiocbp);  // start the read
   if (status == -1) {
-    do { 
       perror("aio_read issue");
       exit(EXIT_FAILURE); 
-    } while (0);
   }
   
   while (status == EINPROGRESS) {
@@ -79,10 +77,8 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
       printf("Canceled\n");
       break;
     default:
-      do { 
         perror("aio_error");
         exit(EXIT_FAILURE); 
-      } while (0);
       break;
   }
 
