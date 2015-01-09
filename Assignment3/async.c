@@ -33,6 +33,7 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   off_t offset;
 
   struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
+  memset(aiocbp, 0, sizeof(struct aiocb)); // zero out control block
   if (aiocbp == NULL) {
     return -1; //malloc issue
   }
@@ -48,21 +49,21 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
   
   status = aio_read(aiocbp);  // start the read
+  printf ("Status: %s", status);
   if (status == -1) {
-      perror("aio_read issue");
+    return -1;
   }
   
   while (status == EINPROGRESS) {
-    printf("Async request still going.  \n");
     yield();
     status = aio_error(aiocbp);
+    printf ("Status: %s", status);
   }
   switch (status) {
     case 0:
-      printf("I/O succeeded\n");
       bytes_read = aio_return(aiocbp);
+      printf("bytes read: %d\n", bytes_read);
       offset = lseek(fd, bytes_read, SEEK_CUR); // set the new offset after the read
-      strcpy(buf, aiocbp->aio_buf);
       break;
     case ECANCELED:
       printf("Canceled\n");
