@@ -63,6 +63,7 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
     case 0:
       bytes_read = aio_return(aiocbp);
       printf("bytes read: %d\n", bytes_read);
+      printf("DEBUG: %s", aiocbp->aio_buf);
       offset = lseek(fd, bytes_read, SEEK_CUR); // set the new offset after the read
       break;
     case ECANCELED:
