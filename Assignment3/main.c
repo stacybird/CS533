@@ -12,59 +12,6 @@
 
 ssize_t read_wrap(int fd, void * buf, size_t count);
 
-void foo(void * arg) {
-  char * str = (char*) arg;
-  /* do important stuff */
-  printf("\nfoo threading works! args: %s\n", str);
-}
-
-void test_foo() {
-  scheduler_begin();
-  thread_fork(foo, (void*)"bar");
-  thread_fork(foo, (void*)"baz");
-  thread_fork(foo, (void*)"bifur");
-  thread_fork(foo, (void*)"bofur");
-  thread_fork(foo, (void*)"bombur");
-  thread_fork(foo, (void*)"fili");
-  thread_fork(foo, (void*)"kili");
-  scheduler_end(); 
-}
-
-// http://www.geeksforgeeks.org/sieve-of-eratosthenes/
-// marks all mutiples of 'a' ( greater than 'a' but less than equal to 'n') as 1.
-void markMultiples(int arr[], int a, int n) {
-  int i = 2, num;
-  while ( (num = i*a) <= n ) {
-    arr[ num-1 ] = 1; // minus 1 because index starts from 0.
-    ++i;
-  }
-}
-
-
-// http://www.geeksforgeeks.org/sieve-of-eratosthenes/
-// A function to print all prime numbers smaller than n
-void SieveOfEratosthenes(int n) {
-  if (n >= 2) {  // There are no prime numbers smaller than 2
-    // Create an array of size n and initialize all elements as 0
-    int arr[n];
-    memset(arr, 0, sizeof(arr));
-    /* Following property is maintained in the below for loop
-       arr[i] == 0 means i + 1 is prime
-       arr[i] == 1 means i + 1 is not prime */
-    int i;
-    for (i=1; i<n; ++i) {
-      if ( arr[i] == 0 ) {  //(i+1) is prime, print it and mark its multiples
-        printf("%d ", i+1);
-        markMultiples(arr, i+1, n);
-      }
-      if (i%100 == 0) {
-        printf("     yield! n=%d", n);
-        yield();
-        printf("\ncontinue! n=%d   ", n);
-      }
-    }
-  }
-}
 
 void test_read(void * arg) {
   char * str = (char*) arg;
@@ -102,7 +49,7 @@ void test_read_wrap(void * arg) {
 
 int main(void) {
   scheduler_begin();
-  //thread_fork(test_read, (void*)"test.txt");
+  thread_fork(test_read, (void*)"test.txt");
   thread_fork(test_read_wrap, (void*)"test.txt");
   thread_fork(test_read_wrap, (void*)"test.txt");
   thread_fork(test_read_wrap, (void*)"test.txt");
