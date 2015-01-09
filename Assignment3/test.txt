@@ -1,13 +1,13 @@
-Thinnant Ithil,
-ar giliath,
-enedh en-fuin,
-gwanna i lû,
-im losta erui.
-
-The moon is gone,
-and the stars,
-in the middle of the night,
-the hour is passing,
-but I sleep alone.
-
-Sappho
+1. Thinnant Ithil,
+2. ar giliath,
+3. enedh en-fuin,
+4. gwanna i lû,
+5. im losta erui.
+6. 
+7. The moon is gone,
+8. and the stars,
+9. in the middle of the night,
+10. the hour is passing,
+11. but I sleep alone.
+12. 
+13. Sappho
