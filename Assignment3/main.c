@@ -47,10 +47,10 @@ void test_read_wrap(void * arg) {
   buf_size = sizeof(buffer);
   my_count = read_wrap(filedesc, buffer, buf_size);
   do {
-    my_count = read_wrap(filedesc, buffer, buf_size);
     printf("%s", buffer);
-    clear_buf(buffer, 20);
+    //clear_buf(buffer, 20);
     printf("*");
+    my_count = read_wrap(filedesc, buffer, buf_size);
   } while (my_count != 0);
   printf("\n****    end read_wrap of %s\n", str);
   thread_finish();
@@ -58,7 +58,7 @@ void test_read_wrap(void * arg) {
 
 int main(void) {
   scheduler_begin();
-  thread_fork(test_read, (void*)"test.txt");
+//  thread_fork(test_read, (void*)"test.txt");
   thread_fork(test_read_wrap, (void*)"test.txt");
   thread_fork(test_read_wrap, (void*)"test.txt");
   thread_fork(test_read_wrap, (void*)"test.txt");
