@@ -32,21 +32,16 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   int bytes_read;
   off_t offset;
 
-// design choice:  errors currently too strict.  severaly of these need to bubble up.  
-// only catch where read would have.
   struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
   if (aiocbp == NULL) {
-      perror("malloc issue");
+    return -1; //malloc issue
   }
   aiocbp->aio_fildes = fd;  // set the file
   if (aiocbp->aio_fildes == -1){
-      perror("opened on file");
+    errno = EBADF;
+    return -1;
   }
   aiocbp->aio_buf = buf;
-  //malloc(size); // allocate for the buffer
-  if (aiocbp->aio_buf == NULL) {
-      perror("malloc issue");
-  }
   aiocbp->aio_nbytes = count; // number of bytes to read
   aiocbp->aio_reqprio = 0; // no additional priority set 
   aiocbp->aio_offset = lseek(fd, 0, SEEK_CUR);  // offset for the file
