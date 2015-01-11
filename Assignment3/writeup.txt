@@ -1,0 +1,76 @@
+// Stacy Watts
+// CS 533 - Fall 2014
+// Assignment 3
+
+
+What I did and how tested it:
+
+This time around I had difficulty understanding the man pages.  The interface
+was very unfamiliar.  I’d not thought ahead of time about the various filetypes
+we would be testing against, or that everything in linux being a file means
+anything might be used by read.
+
+My initial implementation went overboard on catching to many errors.  I had to
+scale my error trapping back and just set the error flags as you would expect
+when calling read.  The seek portion was fairly straightforward for the aspect
+we implemented, but the rest of seek’s documentation on holes makes me think we
+could have implemented more.  
+
+Testing initially was just with a flat text file called repeatedly, and then
+adding stdin to the mix.  It didn’t allow for enough delay prior to to stdin
+call returning, so I also added back in the sieve of erasthonese code form the
+last assignment.  Unfortunately this introduces a lot of scroll back for testing
+at the number required.  The yielding did work as expected, the read yielding
+until the input occurs, and then finishing.  
+
+I would have liked to test more of what the synchronous read actually does to go
+back and forth with the read_wrap and verify the results match and implement 
+more of the expected error conditions.  Some of them were more difficult to test
+in practice.  I did very much enjoy the snake game.  On a remote terminal it
+jumped around a little, but quite fun, thank you!  It was quite the reward to
+get the stdin working correctly (not attempting to seek), and play the game.  
+
+
+1. In class, we've talked about how to synchronize in in a cooperative
+multi-threaded environment. Specifically, we've said that not yielding (or
+calling a function that yields) in a critical section is just like acquiring a
+lock for that critical section. Is this still true?
+
+No, it is not precisely still true.  We’re introducing concurrency with the
+asynchronous IO.  Sometimes we will be fine executing, and we return the 
+expected result, and sometimes there is the chance for data corruption.  Since
+calling read_wrap is making an asynchronous call on our behalf, the kernel is
+using a kernel thread to do that IO.  This is concurrency.  We don’t know when
+the buffer we pointed to will be overwritten.  We don’t know when that IO will
+return, and what else might be accessing the same location.  Even though our
+thread isn’t explicitly running, data can still get clobbered.
+
+
+2. Briefly discuss a potential design for a scheduler that uses asynchronous
+software interrupts (signals) and true blocking instead of polling and
+busy-waiting to handle notification of I/O completion. What information should
+be passed to the signal handler? What information should the signal handler
+manipulate? Signals turn your scheduler into a concurrent program. Where do we
+have to look out for problems such as race conditions, deadlock, etc?
+
+To have a scheduler with interrupts would require another kernel thread we can
+have blocked.  Otherwise the block would block all of our user-level threads.
+One potential design is to spin up another kernel thread, have that initiate the
+io and register with the signal handler, and then the kernel would wake it on
+completion.  We could then have that thread call back into our scheduler.  The
+information to the signal handler would be the signal and the handler, for
+example IO request details.  The Signal handler shouldn’t manipulate too much,
+since the point is quickness.  
+
+Given the above, when the thread returns and calls back into the scheduler we’d
+have the concurrency.  There is the potential with multiple cpus to have two io
+threads return at the same time.  it is also possible to have a condition where
+our scheduler waits on IO that never returns.  
+
+
+
+my high scores for the snake game:
+game over! your score: 22
+game over! your score: 50
+game over! your score: 44
+
