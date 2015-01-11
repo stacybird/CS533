@@ -18,7 +18,7 @@
 // result into buf that read would have.
 //
 // Furthermore, if the file is seekable, read_wrap should start reading from 
-// the current position in the file, and then seek to the appropriate position 
+// the current position in the file, and then seek to the appropriate position
 // in the file, just as read would have. This is arguably the most difficult 
 // part of this assignment, since aio_read does not seek automatically.
 ssize_t read_wrap(int fd, void * buf, size_t count) {
@@ -40,12 +40,13 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   aiocbp->aio_buf = buf;
   aiocbp->aio_nbytes = count; // number of bytes to read
   aiocbp->aio_reqprio = 0; // no additional priority set 
-  aiocbp->aio_offset = lseek(fd, 0, SEEK_CUR);  // offset for the file
+  if ((0 == fd) || (1 == fd) || (2 == fd)) { 
+    aiocbp->aio_offset = 0; // seek would be invalid for stdin, stdout, stderr.
+  }
+  else {
+    aiocbp->aio_offset = lseek(fd, 0, SEEK_CUR);  // offset for the file
+  }
   aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
-
-// ******* rework lseek section to check for all valid kinds if read input.
-// ******* valid includes things like stdin.
-  
   status = aio_read(aiocbp);  // start the read
   if (status == -1) {
     return -1;
@@ -57,38 +58,21 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   switch (status) {
     case 0:
       bytes_read = aio_return(aiocbp);
-      offset = lseek(fd, bytes_read, SEEK_CUR); // set the new offset after the read
-      if (-1 == offset) {
-        offset = lseek(fd, bytes_read, SEEK_CUR);
+      if (!(0 == fd) || (1 == fd) || (2 == fd)) { // do seek only if not stdin 
+        offset = lseek(fd, bytes_read, SEEK_CUR); // set the new offset
+        if (-1 == offset) {
+          offset = lseek(fd, bytes_read, SEEK_CUR); // on fail, try again.
+        }
       }
       break;
     case ECANCELED:
-      printf("Canceled\n");
+      errno = EINTR;
       break;
     default:
-      perror("aio_error");
+      errno = EIO;
       break;
   }
 
   return bytes_read;
 }
-
-/* from read()
-       read() attempts to read up to count bytes from file descriptor fd
-       into the buffer starting at buf.
-
-       On files that support seeking, the read operation commences at the
-       current file offset, and the file offset is incremented by the number
-       of bytes read.  If the current file offset is at or past the end of
-       file, no bytes are read, and read() returns zero.                    
-
-       On success, the number of bytes read is returned (zero indicates end
-       of file), and the file position is advanced by this number.  It is
-       not an error if this number is smaller than the number of bytes
-       requested; this may happen for example because fewer bytes are
-       actually available right now (maybe because we were close to end-of-
-       file, or because we are reading from a pipe, or from a terminal), or
-       because read() was interrupted by a signal.  On error, -1 is
-       returned, and errno is set appropriately.  In this case, it is left
-       unspecified whether the file position (if any) changes.             */
 
