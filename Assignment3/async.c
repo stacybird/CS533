@@ -27,13 +27,13 @@
 // ******* rework lseek section to check for all valid kinds if read input.
 // ******* valid includes things like stdin.
 ssize_t read_wrap(int fd, void * buf, size_t count) {
-//  off_t offset;
-  int status;
-  int bytes_read;
   off_t offset;
+  int status = 0;
+  int bytes_read;
 
   struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
   memset(aiocbp, 0, sizeof(struct aiocb)); // zero out control block
+  memset(buf, 0, count); // zero out buffer before using
   if (aiocbp == NULL) {
     return -1; //malloc issue
   }
@@ -49,22 +49,21 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
   
   status = aio_read(aiocbp);  // start the read
-  printf ("Status: %s", status);
   if (status == -1) {
     return -1;
   }
   
-  while (status == EINPROGRESS) {
+  while (aio_error(aiocbp) == EINPROGRESS) {
     yield();
     status = aio_error(aiocbp);
-    printf ("Status: %s", status);
   }
   switch (status) {
     case 0:
       bytes_read = aio_return(aiocbp);
-      printf("bytes read: %d\n", bytes_read);
-      printf("DEBUG: %s", aiocbp->aio_buf);
       offset = lseek(fd, bytes_read, SEEK_CUR); // set the new offset after the read
+      if (-1 == offset) {
+        offset = lseek(fd, bytes_read, SEEK_CUR);
+      }
       break;
     case ECANCELED:
       printf("Canceled\n");
