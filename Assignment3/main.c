@@ -12,12 +12,6 @@
 
 ssize_t read_wrap(int fd, void * buf, size_t count);
 
-void clear_buf(char * buffer, int size) {
-  int i = 0;
-  for (i=0; i<=size; ++i)
-    buffer[i] = NULL;
-}
-
 
 void test_read(void * arg) {
   char * str = (char*) arg;
@@ -29,8 +23,6 @@ void test_read(void * arg) {
   my_count = read(filedesc, buffer, buf_size);
   do {
     printf("%s", buffer);
-    clear_buf(buffer, 20);
-    printf("*");
     my_count = read(filedesc, buffer, buf_size);
   } while (my_count != 0);
   printf("\n****    end read of %s\n", str);
@@ -48,8 +40,6 @@ void test_read_wrap(void * arg) {
   my_count = read_wrap(filedesc, buffer, buf_size);
   do {
     printf("%s", buffer);
-    //clear_buf(buffer, 20);
-    printf("*");
     my_count = read_wrap(filedesc, buffer, buf_size);
   } while (my_count != 0);
   printf("\n****    end read_wrap of %s\n", str);
