@@ -21,22 +21,17 @@
 // the current position in the file, and then seek to the appropriate position 
 // in the file, just as read would have. This is arguably the most difficult 
 // part of this assignment, since aio_read does not seek automatically.
-
-
-
-// ******* rework lseek section to check for all valid kinds if read input.
-// ******* valid includes things like stdin.
 ssize_t read_wrap(int fd, void * buf, size_t count) {
   off_t offset;
   int status = 0;
-  int bytes_read;
+  int bytes_read = 0;
 
   struct aiocb *aiocbp = malloc(sizeof(struct aiocb)); // allocate structure
+  if (aiocbp == NULL) {
+    return -1; // malloc issue
+  }
   memset(aiocbp, 0, sizeof(struct aiocb)); // zero out control block
   memset(buf, 0, count); // zero out buffer before using
-  if (aiocbp == NULL) {
-    return -1; //malloc issue
-  }
   aiocbp->aio_fildes = fd;  // set the file
   if (aiocbp->aio_fildes == -1){
     errno = EBADF;
@@ -47,12 +42,14 @@ ssize_t read_wrap(int fd, void * buf, size_t count) {
   aiocbp->aio_reqprio = 0; // no additional priority set 
   aiocbp->aio_offset = lseek(fd, 0, SEEK_CUR);  // offset for the file
   aiocbp->aio_sigevent.sigev_notify = SIGEV_NONE; // correct for polling
+
+// ******* rework lseek section to check for all valid kinds if read input.
+// ******* valid includes things like stdin.
   
   status = aio_read(aiocbp);  // start the read
   if (status == -1) {
     return -1;
   }
-  
   while (aio_error(aiocbp) == EINPROGRESS) {
     yield();
     status = aio_error(aiocbp);
