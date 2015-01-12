@@ -1,6 +1,6 @@
 // Stacy Watts
 // CS 533 - Fall 2014
-// Assignment 4
+// Assignment 5
 
 #include "scheduler.h"
 #include <stdio.h>
