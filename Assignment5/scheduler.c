@@ -4,13 +4,15 @@
 
 // definitions of our scheduler API functions.
 
+#define _GNU_SOURCE
+#include <sched.h>
 #include "scheduler.h"
 #include <stdlib.h>
 
 
 int ALLOCATE = 1024*1024;  // stack allocation size
 struct queue * ready_list;
-struct thread_t * current_thread = NULL;
+struct thread_t * set_current_thread(NULL);
 
 void thread_start(struct thread_t * old, struct thread_t * new);
 void thread_switch(struct thread_t * old, struct thread_t * new);
@@ -20,7 +22,7 @@ void scheduler_begin() {
   ready_list = malloc(sizeof(struct queue));
   ready_list->head = NULL;
   ready_list->tail = NULL;
-  current_thread = malloc(sizeof(struct thread_t));
+  set_current_thread(malloc(sizeof(struct thread_t)));
   current_thread->state = RUNNING;
 }
 
@@ -49,7 +51,7 @@ void thread_fork(void(*target)(void*), void * arg) {
   thread_enqueue(ready_list, current_thread);
   new_thread->state = RUNNING;
   struct thread_t * temp_thread = current_thread;
-  current_thread = new_thread;
+  set_current_thread(new_thread);
   thread_start(temp_thread, current_thread);
 }
 
@@ -78,7 +80,7 @@ void yield() {
   struct thread_t * next_thread = thread_dequeue(ready_list);
   next_thread->state = RUNNING;
   struct thread_t * temp_thread = current_thread;
-  current_thread = next_thread;
+  set_current_thread(next_thread);
   thread_switch(temp_thread, current_thread);
 }
 
