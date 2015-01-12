@@ -10,7 +10,7 @@ was very unfamiliar.  I’d not thought ahead of time about the various filetype
 we would be testing against, or that everything in linux being a file means
 anything might be used by read.
 
-My initial implementation went overboard on catching to many errors.  I had to
+My initial implementation went overboard on catching too many errors.  I had to
 scale my error trapping back and just set the error flags as you would expect
 when calling read.  The seek portion was fairly straightforward for the aspect
 we implemented, but the rest of seek’s documentation on holes makes me think we
@@ -64,7 +64,7 @@ since the point is quickness.
 
 Given the above, when the thread returns and calls back into the scheduler we’d
 have the concurrency.  There is the potential with multiple cpus to have two io
-threads return at the same time.  it is also possible to have a condition where
+threads return at the same time.  It is also possible to have a condition where
 our scheduler waits on IO that never returns.  
 
 
