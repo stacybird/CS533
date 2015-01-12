@@ -12,7 +12,7 @@
 
 int ALLOCATE = 1024*1024;  // stack allocation size
 struct queue * ready_list;
-struct thread_t * set_current_thread(NULL);
+struct thread_t * current_thread;
 
 void thread_start(struct thread_t * old, struct thread_t * new);
 void thread_switch(struct thread_t * old, struct thread_t * new);
